@@ -1,0 +1,9 @@
+ declare
+ cursor emp_cur is select * from employee;
+ V_EMP EMPLOYEE%ROWTYPE;
+ BEGIN
+ OPEN emp_cur;
+ loop
+ fetch emp_cur INTO v_emp;
+ EXIT WHEN emp_cur%notfound;
+ DBMS_OUTPUT.PUT_LINE('Employee id is:'||v_emp.empdept);

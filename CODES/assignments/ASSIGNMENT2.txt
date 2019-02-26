@@ -1,0 +1,131 @@
+1. Display name and date of birth of students
+ where date of birth must be displayed in the format similar to “January, 12 1981” for those who were born on Saturday or Sunday.
+
+SELECT NAME,TO_CHAR(DOB,'MONTH,DD,YYYY') AS STUDENT_DOB FROM BIRTH WHERE TO_CHAR(DOB,'FMDAY') 
+LIKE '%SATURDAY' OR TO_CHAR(DOB,'FMDAY') LIKE '%SUNDAY';
+
+
+2. Display each staff name and number of months they worked for the organization. Label the column as ‘Months Worked’.
+ Order your result by number of months employed. Round the number of months to closest whole number.
+
+
+	SQL> SELECT NAME,ROUND(MONTHS_BETWEEN(SYSDATE,DOB)/12,0)  "MONTHS WORKED"   FROM BIRTH;
+
+
+3. List the details of the employees, whose names start with ‘A’ and end with ‘S’.
+
+	SELECT NAME FROM TESTEMP WHERE NAME LIKE 'A%%S';
+
+
+
+4. List the name and job of the employees whose names should contain N as the second or third character, and ending with either ‘N’ or ‘S’.
+
+
+	SQL> SELECT NAME FROM TESTEMP WHERE ( NAME LIKE '__N%'OR NAME LIKE '_N%') AND (NAME LIKE '%S' OR NAME LIKE '%N');
+
+
+
+5. Create a query which will display Staff Name, Salary of each staff. Format the salary to be 15 character long and left padded with ‘$’.
+	
+SQL> SELECT RPAD(SALARY,'15','$') FROM STAFF;
+
+
+
+6. List the names of the Employees having ‘_’ character in their name.
+
+	SELECT NAME FROM TESTEMP WHERE NAME LIKE '%$_%' ESCAPE '$';
+
+
+7. List the details of the employees who have joined in December (irrespective of the year).
+
+	
+		SQL> SELECT NAME,TO_CHAR(DOB) FROM BIRTH WHERE DOB LIKE '%DEC%';
+
+
+
+8. Write a query that displays Staff Name, Salary, and Grade of all staff. Grade depends on the following table.
+SELECT NAME,SALARY,
+CASE
+WHEN SALARY >= 50000   THEN   'A'  
+WHEN SALARY>25000 AND SALARY<50000 THEN 'B'
+WHEN SALARY>10000 AND SALARY<25000 THEN 'C'
+ELSE 'D'
+END CASE
+FROM SORTOF;
+# HEADING GRADE NOT CAME
+10. Show staff names with the respective numbers of asterisk from Staff table.
+
+SQL> SELECT TRANSLATE(NAME,'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz
+','***********************') FROM SORTOF;
+
+11. Show staff names with the respective numbers of asterisk from Staff table except first and last characters. For example: KING will be replaced with K**G.
+
+
+SELECT RPAD(RPAD(SUBSTR(NAME,1,1),LENGTH(NAME),'*') FROM STAFF;
+
+12. Show all staffs who were hired in the first half of the month.
+SELECT NAME FROM BIRTH WHERE TO_CHAR(DOB,’DD’) BETWEEN 1 AND 15;
+
+
+13. Display the staff name, hire date and day of the week on which the staff joined. Order the results by the day of the week starting with Monday.
+SELECT NAME,DOB,TO_CHAR(DOB,’FMDAY’) AS “DAY” FROM BIRTH ORDER BY TO_CHAR(DOB,’FMDAY’);
+
+14. Write a query to find the position of third occurrence of ‘i’ in the given word ‘Mississippi’.
+
+
+15. Write a query to find the pay date for the month. Pay date is the last Friday of the month.
+ Display the date in the format “Twenty Eighth of January, 2002”. Label the heading as PAY DATE.
+
+16. Display the Highest, Lowest, Total & Average salary of all staff. Label the columns Maximum, Minimum, Total and Average respectively.
+ Round the result to nearest whole number.
+
+SELECT MAX(SALARY) AS “MAXIMUM”,MIN(SALARY) AS “MINIMUM”,AVG(SALARY) AS “AVERAGE”,
+SUM(SALARY) AS “TOTAL” FROM SORTOF;
+
+17. Edit the above query and display the same for each Department Name.
+
+SELECT CEIL(MAX(SALARY)) AS “MAXIMUM”, CEIL(MIN(SALARY)) AS “MINIMUM” ,CEIL(AVG(SALARY)) AS “AVERAGE”,
+CEIL(SUM(SALARY)) AS “TOTAL” FROM SORTOF A LEFT JOIN DESIGN B ON A.DESIGNCODE = B.DESIGNCODE 
+GROUP BY NAME;
+
+18. Write a query to display number of people in each Department. 
+Output should display Department Code, Department Name and Number of People.
+
+
+19. Determine the number of managers without listing them. Label the column as ‘Total Number of Managers’.
+
+
+
+20. Display Manager Code, Manager Name and salary of lowest paid staff in that manager’s team.
+ Exclude any group where minimum salary is less than 10000. Order the result on descending order of salary.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

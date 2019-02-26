@@ -1,0 +1,880 @@
+
+
+Lab 1. Introduction to Data Dictionary
+
+1.1: Get the details of all the database objects and their types created by the current 
+user. 
+
+SELECT OBJECT_NAME,OBJECT_TYPE FROM USER_OBJECTS;
+
+
+1.2 Get the details of all the table names owned by current user 
+
+SELECT TNAME FROM TAB;
+
+1.3 Get the details of table names and corresponding column names 
+
+SELECT TNAME,CNAME FROM COL;
+
+
+1.4 Get the details of column names and corresponding constraint names 
+
+SELECT COLUMN_NAME,CONSTRAINT_NAME FROM USER_CONS_COLUMNS;
+
+
+1.5: Get the details of the constraints and corresponding table name. 
+
+SELECT CONSTRAINT_NAME,TABLE_NAME FROM USER_CONSTRAINTS;
+
+
+1.6: Get the details of all the View names and corresponding Text of the same. 
+
+SELET VIEW_NAME,TEXT FROM USER_VIEWS;
+
+
+1.7: Get the details of all the Sequence names and their last numbers reached so far. 
+
+SELECT SEQUENCE_NAME,LAST_NUMBER FROM USER_SEQUENCE;
+
+1.8: Get the details of all the Synonym names and their parent object names. 
+
+SELECT SYNONYM_NAME,TABLE_NAME FROM USER_SYNONYM;
+1.9: Get the list of all the Index names
+SELECT INDEX_NAME FROM ALL_INDEXES;
+
+
+Lab 2. Introduction to PL/SQL and Cursors
+
+2.1 
+Identify the problems(if any) in the below declarations: 
+DECLARE 
+V_Sample1 NUMBER(2); 
+V_Sample2 CONSTANT NUMBER(2) ; 
+V_Sample3 NUMBER(2) NOT NULL ; 
+V_Sample4 NUMBER(2) := 50; 
+V_Sample5 NUMBER(2) DEFAULT 25; 
+Example 1: Declaration Block 
+
+
+NO ERRORS
+
+
+2.2 
+The following PL/SQL block is incomplete. 
+Modify the block to achieve requirements as stated in the comments in the block. 
+
+DECLARE --outer block 
+var_num1 NUMBER := 5; 
+BEGIN 
+DECLARE --inner block 
+var_num1 NUMBER := 10; 
+BEGIN 
+DBMS_OUTPUT.PUT_LINE('Value for var_num1:' ||var_num1); 
+--Can outer block variable (var_num1) be printed here.If Yes,Print the same. 
+END; 
+--Can inner block variable(var_num1) be printed here.If Yes,Print the same. 
+END; 
+
+Example 2: PL/SQL block
+DECLARE --outer block
+var_num1 NUMBER := 5;
+BEGIN
+DECLARE --inner block
+var_num1 NUMBER := 10;
+BEGIN
+DBMS_OUTPUT.PUT_LINE('Value for var_num1:' ||var_num1);//WE AN PRINT THE INNER BLOCK ELEMENT VALUE
+END;
+DBMS_OUTPUT.PUT_LINE('Value for var_num2:' ||var_num1);//WE CAN PRINT THE OUTER BLOCK ELEMENT
+END;
+
+
+2.3. Write a PL/SQL block to retrieve all staff (code, name, salary) under specific department number and display the result. (Note: The Department_Code will be accepted from user. Cursor to be used.) 
+
+CREATE OR REPLACE PROCEDURE emp_PRO(p_dept STAFF.DEPT_CODE%TYPE)
+AS
+CURSOR emp_cur IS SELECT * FROM STAFF WHERE DEPT_CODE=p_dept;
+V_EMP STAFF%ROWTYPE;
+BEGIN
+OPEN emp_cur;
+LOOP
+FETCH emp_cur INTO v_emp;
+EXIT WHEN emp_cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE ID IS:'||v_emp.CODE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME IS:'||v_emp.NAME);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SAL IS:'||v_emp.SALARY);
+END LOOP;
+CLOSE emp_cur;
+END;
+/
+
+
+
+2.4. Write a PL/SQL block to increase the salary by 30 % or 5000 whichever minimum for a given Department_Code. 
+
+CREATE OR REPLACE PROCEDURE emp_PRO(p_dept NUMBER)
+AS
+CURSOR emp_cur1 IS SELECT * FROM STAFF WHERE DEPTCODE=p_dept;
+V_emp STAFF%ROWTYPE;
+P_sal NUMBER(10):=0;
+BEGIN
+OPEN emp_cur1;
+LOOP
+FETCH emp_CUR1 INTO V_emp;
+EXIT WHEN emp_cur1%NOTFOUND;
+IF V_emp.SALARY*0.3>5000
+THEN
+P_sal:=P_sal+v_emp.STAFF_SAL+5000;
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SAL IS:'||P_sal);
+ELSE
+P_sal:=P_sal+v_emp.STAFF_SAL+v_emp.STAFF_SAL*0.3;
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SAL IS:'||P_sal);
+END IF;
+END LOOP;
+CLOSE emp_cur1;
+END;
+/
+
+
+
+2.5. Write a PL/SQL block to generate the following report for a given Department code 
+Student_Code Sudent_Name Subject1 Subject2 Subject3 Total Percentage Grade 
+Note: Display suitable error massage if wrong department code has entered and if there is no student in the given department. 
+For Grade: 
+Student should pass in each subject individually (pass marks 60). 
+Percent >= 80 then grade= A 
+Percent >= 70 and < 80 then grade= B 
+Percent >= 60 and < 70 then grade= C 
+Else D 
+
+DECLARE
+CURSOR CUS_EMP3 IS SELECT B.ENGLISH,B.PHYSICS,B.CHEMISTRY,A.STUDENT_NAME,A.STUDENTCODE FROM MARKS B,STUDENT A WHERE DEPT_CODE='&p_dept';
+V_EMP CUS_EMP3%ROWTYPE;
+P_total NUMBER;
+V_GRADE CHAR;
+BEGIN
+OPEN CUS_EMP3;
+LOOP
+FETCH CUS_EMP3 INTO V_EMP;
+EXIT WHEN CUS_EMP3%NOTFOUND;
+P_total:=V_EMP.ENGLISH+V_EMP.PHYSICS+V_EMP.CHEMISTRY;
+IF P_total/3>80
+THEN
+V_GRADE:='A';
+ELSIF P_total/3<80 AND P_total/3>=70
+THEN
+V_GRADE:='B';
+ELSIF P_total/3<70 AND P_total/3>=60
+THEN
+V_GRADE:='C';
+ELSE
+V_GRADE:='D';
+END IF;
+DBMS_OUTPUT.PUT_LINE('STUDENT NAME:'||V_EMP.STUDENT_NAME);
+DBMS_OUTPUT.PUT_LINE('STUDENT CODE:'||V_EMP.STUDENT_CODE);
+DBMS_OUTPUT.PUT_LINE('SUBJECT 1:'||V_EMP.ENGLISH);
+DBMS_OUTPUT.PUT_LINE('SUBJECT 2:'||V_EMP.PHYSICS);
+DBMS_OUTPUT.PUT_LINE('SUBJECT 3:'||V_EMP.CHEMISTRY);
+DBMS_OUTPUT.PUT_LINE('TOTAL:'||P_total);
+DBMS_OUTPUT.PUT_LINE('GRADE:'||V_GRADE);
+END LOOP;
+END;
+/
+
+2.6. Write a PL/SQL block to retrieve the details of the staff belonging to a particular department. Department code should be passed as a parameter to the cursor.
+
+CREATE OR REPLACE PROCEDURE emp_PRO(p_dept STAFF.DEPT_CODE%TYPE)
+AS
+CURSOR emp_cur IS SELECT * FROM STAFF WHERE DEPT_CODE=p_dept;
+V_EMP STAFF%ROWTYPE;
+BEGIN
+OPEN emp_cur;
+LOOP
+FETCH emp_cur INTO v_emp;
+EXIT WHEN emp_cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE ID IS:'||v_emp.CODE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME IS:'||v_emp.NAME);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SAL IS:'||v_emp.SALARY);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE DOB IS:'||v_emp.DOB);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE HIREDATE IS:'||v_emp.HIREDATE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE MGR ID IS:'||v_emp.MGR_CODE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE ADDRESS IS:'||v_emp.STAFF_ADDRESS);
+END LOOP;
+CLOSE emp_cur;
+END;
+/
+
+
+
+
+
+
+
+Lab 3. Exception Handling and Dynamic SQL
+
+
+3.1: Modify the programs created in Lab2 to implement Exception Handling 
+
+CREATE OR REPLACE PROCEDURE emp_proc(p_id number)
+as
+v_id staff%rowtype;
+BEGIN
+select * INTO v_id from staff_masters where staff_code=p_id;
+DBMS_OUTPUT.PUT_LINE('employee id is:'||v_id.staff_id);
+DBMS_OUTPUT.PUT_LINE('employee name is:'||v_name.sname);
+EXCEPTION
+ WHEN TOO_MANY_ROWS THEN
+  DBMS_OUTPUT.PUT_LINE('check the values');
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('mayday');
+END;
+/
+
+
+
+3.2 The following PL/SQL block attempts to calculate bonus of staff for a given MGR_CODE. 
+Bonus is to be considered as twice of salary. Though Exception Handling has been implemented but block is unable to handle the same. 
+Debug and verify the current behavior to trace the problem. 
+
+
+
+DECLARE 
+V_BONUS V_SAL%TYPE; 
+V_SAL STAFF_MASTER.STAFF_SAL%TYPE; 
+BEGIN 
+SELECT STAFF_SAL INTO V_SAL 
+FROM STAFF_MASTER 
+WHERE MGR_CODE=100006; 
+V_BONUS:=2*V_SAL; 
+DBMS_OUTPUT.PUT_LINE('STAFF SALARY IS ' || V_SAL); 
+DBMS_OUTPUT.PUT_LINE('STAFF BONUS IS ' || V_BONUS); 
+EXCEPTION 
+WHEN NO_DATA_FOUND THEN 
+DBMS_OUTPUT.PUT_LINE('GIVEN CODE IS NOT VALID.ENTER VALID CODE'); 
+END; 
+Example 3: PL/SQL block
+WE ARE NOT ASSIGNING THE CORRECT DATA TYPE VALUE TO V_BONUS HENCE IT IS UNABLE TO ACCES THE DATA VALUES OF SALARY
+
+3.3 Rewrite the above block to achieve the requirement.
+
+DECLARE
+V_BONUS STAFF_MASTERS.STAFF_SAL%TYPE;
+V_SAL STAFF_MASTER.STAFF_SAL%TYPE;
+BEGIN
+SELECT STAFF_SAL INTO V_SAL FROM STAFF WHERE MGR_CODE=100006;
+V_BONUS:=2*V_SAL;
+DBMS_OUTPUT.PUT_LINE('SALARY IS ' || V_SAL);
+DBMS_OUTPUT.PUT_LINE('STAFF BONUS IS ' || V_BONUS);
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('GIVEN CODE IS NOT VALID.ENTER VALID CODE');
+END;
+/
+
+
+3.4 
+Predict the output of the following block ? What corrections would be needed to make it more efficient? 
+
+BEGIN 
+DECLARE 
+fname emp.ename%TYPE; 
+BEGIN 
+SELECT ename INTO fname 
+FROM emp 
+WHERE 1=2; 
+DBMS_OUTPUT.PUT_LINE('This statement will print'); 
+EXCEPTION 
+WHEN OTHERS THEN 
+DBMS_OUTPUT.PUT_LINE('Some inner block error'); 
+END; 
+EXCEPTION 
+WHEN NO_DATA_FOUND THEN 
+DBMS_OUTPUT.PUT_LINE('No data found in fname'); 
+WHEN OTHERS THEN 
+DBMS_OUTPUT.PUT_LINE('Some outer block error'); 
+END;
+
+THE OUTPUT OF THE CODE IS SOME INNER BLOCK ERROR
+
+
+
+
+3.5 Debug the above block to trace the flow of control. 
+Additionally one can make appropriate changes in Select statement defined in the 
+block to check the flow.
+
+ 
+3.6: Write a PL/SQL program to check for the commission for an employee no 7369. If no commission exists, then display the error message. Use Exceptions. 
+
+CREATE OR REPLACE PROCEDURE emp_proc(p_id number)
+as
+v_id emp.comm%type;
+BEGIN
+select comm INTO v_id from emp where empno=p_id;
+IF v_id>0
+THEN
+DBMS_OUTPUT.PUT_LINE('employee commision is:'||v_id);
+END IF;
+EXCEPTION
+WHEN OTHERS THEN
+DBMS_OUTPUT.PUT_LINE('error');
+END;
+/
+
+
+3.7: Write a PL/SQL block to drop any user defined table.
+CREATE OR REPLACE PROCEDURE EMP_PROC1(T_ID VARCHAR)
+AS
+BEGIN
+FOR I IN(SELECT TABLE_NAME FROM USER_TABLE WHERE TABLE_NAME=T_ID) 
+LOOP
+EXECUTE IMMEDIATE 'DROP TABLE SHARED_ALL';
+END LOOP;
+END;
+Lab 4. Database Programming
+
+4.1 Write a PL/SQL block to find the maximum salary of the staff in the given department. Note: Department code should be passed as parameter to the cursor. 
+
+CREATE OR REPLACE PROCEDURE emp_PRO1(p_dept STAFF.DEPT_CODE%TYPE)
+AS
+V_EMP SALARY%TYPE;
+BEGIN
+SELECT MAX(SALARY) INTO V_EMP FROM STAFF WHERE DEPTCODE=p_dept;
+DBMS_OUTPUT.PUT_LINE('THE MAX VALUE IS'||V_EMP);
+END;
+/
+
+
+4.2. Write a function to compute age. The function should accept a date and return age in years. 
+
+CREATE OR REPLACE FUNCTION emp_FUN(p_age DATE) RETURN NUMBER
+AS
+V_EMP NUMBER(10);                                                     
+BEGIN
+V_EMP:=FLOOR(MONTHS_BETWEEN(SYSDATE,p_age)/12);
+RETURN V_EMP;
+END;
+/
+
+  DECLARE
+  V_NUM NUMBER(10);
+  BEGIN
+  V_NUM:=emp_FUN('16-AUG-97');
+  DBMS_OUTPUT.PUT_LINE('AGE:'||V_NUM);
+  END;
+ /
+
+4.3. Write a procedure that accept staff code and update staff name to Upper case. If the staff name is null raise a user defined exception. 
+
+CREATE OR REPLACE PROCEDURE emp_PRO3(p_EID NUMBER)
+AS
+V_EMP NUMBER(10);
+BEGIN
+UPDATE EMPLOY SET ENAME=UPPER(ENAME) WHERE EMPNO=P_EID;
+EXCEPTION
+WHEN NO_DATA_FOUND THEN
+DBMS_OUTPUT.PUT_LINE('VALUES ARE EMPTY');
+END;
+/
+
+
+4.4 Write a procedure to find the manager of a staff. Procedure should return the following – Staff_Code, Staff_Name, Dept_Code and Manager Name. 
+
+CREATE OR REPLACE PROCEDURE emp_PRO4(p_MID NUMBER)
+AS
+V_EMP EMPLOY%ROWTYPE;
+R_EMP EMPLOY%ROWTYPE;
+BEGIN
+SELECT * INTO V_EMP FROM EMPLOY WHERE MGR=p_MID;
+SELECT * INTO R_EMP FROM EMPLOY WHERE EMPNO=p_MID;
+DBMS_OUTPUT.PUT_LINE('STAFFCODE:'||V_EMP.EMPNO);
+DBMS_OUTPUT.PUT_LINE(' NAME:'||V_EMP.EMPNAME);
+DBMS_OUTPUT.PUT_LINE('STAFF CODE:'||V_EMP.DEPTNO);
+DBMS_OUTPUT.PUT_LINE('MANAGER NAME:'||R_EMP.EMPNAME);
+END;
+/
+
+
+4.5. Write a function to compute the following. Function should take Staff_Code and return the cost to company. 
+DA = 15% Salary, HRA= 20% of Salary, TA= 8% of Salary. 
+Special Allowance will be decided based on the service in the company. 
+< 1 Year Nil 
+>=1 Year< 2 Year 10% of Salary 
+>=2 Year< 4 Year 20% of Salary 
+>4 Year 30% of Salary 
+
+
+CREATE OR REPLACE FUNCTION emp_FUN(p_CODE NUMBER) RETURN NUMBER
+AS
+V_DA NUMBER(10);
+V_HRA NUMBER(10);
+V_TA NUMBER(10);
+V_SUM NUMBER(10);
+V_NUM1 NUMBER(10);
+V_NUM NUMBER(10);
+V_SAL EMPLOY%ROWTYPE;                                                     
+BEGIN
+SELECT * INTO V_SAL FROM EMPLOY WHERE EMPNO=p_CODE;
+V_DA:=V_SAL.SAL*0.15;
+V_HRA:=V_SAL.SAL*0.2;
+V_TA:=V_SAL.SAL*0.08;
+V_NUM:=MONTHS_BETWEEN(SYSDATE,V_SAL.HIREDATE)/12;
+IF V_NUM>4
+THEN
+V_NUM1:=V_SAL.SAL*0.3;
+V_SUM:=V_DA+V_HRA+V_TA+V_NUM1;
+RETURN V_SUM;
+ELSIF V_NUM<4 AND V_NUM>=2
+THEN
+V_NUM1:=V_SAL.SAL*0.2;
+V_SUM:=V_DA+V_HRA+V_TA+V_NUM1;
+RETURN V_SUM;
+ELSIF V_NUM<2 AND V_NUM>=1
+THEN
+V_NUM1:=V_SAL.SAL*0.1;
+V_SUM:=V_DA+V_HRA+V_TA+V_NUM1;
+RETURN V_SUM;
+ELSE
+V_SUM:=V_DA+V_HRA+V_TA;
+RETURN V_SUM;
+END IF;
+END;
+/
+
+
+
+ DECLARE
+   V_VAL1 NUMBER(10);
+   BEGIN
+   V_VAL1:=emp_FUN(1000);
+  DBMS_OUTPUT.PUT_LINE('COST TO COMPANY:'||V_VAL1);
+   END;
+   /
+
+
+4.6. Write a procedure that displays the following information of all staff 
+Staff_Name Department Name Designation Salary Status 
+
+CREATE OR REPLACE PROCEDURE emp_PRO5
+AS
+CURSOR CUS_EMP1 IS SELECT * FROM STAFF;
+V_EMP STAFF%ROWTYPE;
+V_AVG NUMBER(10);
+BEGIN
+V_AVG:=25000;
+OPEN CUS_EMP1;
+LOOP
+FETCH CUS_EMP1 INTO V_EMP;
+EXIT WHEN CUS_EMP1%NOTFOUND;
+IF V_EMP.SALARY>V_AVG
+THEN
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME: '||V_EMP.NAME);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE DEPTNO: '||V_EMP.DEPTCODE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SALARY: '||V_EMP.SALARY);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE COMMISION: '||V_EMP.MGR_CODE);
+DBMS_OUTPUT.PUT_LINE('GRADE:GREATER');
+DBMS_OUTPUT.PUT_LINE('    ');
+ELSIF V_EMP.STAFF_SAL=V_AVG
+THEN 
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME: '||V_EMP.STAFF_NAME);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE DEPTNO: '||V_EMP.DEPT_CODE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SALARY: '||V_EMP.STAFF_SAL);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE COMMISION: '||V_EMP.MGR_CODE);
+DBMS_OUTPUT.PUT_LINE('GRADE:EQUAL');
+DBMS_OUTPUT.PUT_LINE('    ');
+ELSIF V_EMP.STAFF_SAL<V_AVG
+THEN 
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME: '||V_EMP.NAME);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE DEPTNO: '||V_EMP.DEPTCODE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SALARY: '||V_EMP.SALARY);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE COMMISION: '||V_EMP.MGR_CODE);                                                 
+DBMS_OUTPUT.PUT_LINE('GRADE:LESS');
+DBMS_OUTPUT.PUT_LINE('    ');
+END IF;
+END LOOP;
+CLOSE CUS_EMP1;
+END;
+/
+
+
+4.7. Write a procedure that accept Staff_Code and update the salary and store the old salary details in Staff_Master_Back (Staff_Master_Back has the same structure without any constraint) table. 
+Exp < 2 then no Update 
+Exp > 2 and < 5 then 20% of salary 
+Exp > 5 then 25% of salary 
+
+CREATE OR REPLACE PROCEDURE EMP_PRO6(D_CODE NUMBER)
+AS
+V_EMP EMP%ROWTYPE;
+V_EXP NUMBER(10);
+BEGIN
+SELECT * INTO V_EMP FROM EMP WHERE EMPNO=D_CODE;
+INSERT INTO EMPLOY VALUES(V_EMP.EMPNO,V_EMP.ENAME,V_EMP.JOB,V_EMP.MGR,V_EMP.HIREDATE,V_EMP.SAL,V_EMP.COMM,V_EMP.DEPTNO);
+V_EXP:=MONTHS_BETWEEN(SYSDATE,V_EMP.HIREDATE)/12;
+IF V_EXP>5
+THEN 
+UPDATE EMP SET SAL=SAL+SAL*0.25 WHERE EMPNO=D_CODE;
+ELSIF V_EXP<5 AND V_EXP>2
+THEN 
+UPDATE EMP SET SAL=SAL+SAL*0.2 WHERE EMPNO=D_CODE;
+ELSIF V_EXP<2
+THEN 
+UPDATE EMP SET SAL=SAL WHERE EMPNO=D_CODE;
+END IF;
+END;
+/
+
+
+4.8. Create a procedure that accepts the book code as parameter from the user. Display the details of the students/staff that have borrowed that book and has not returned the same. The following details should be displayed 
+Student/Staff Code Student/Staff Name Issue Date Designation Expected Ret_Date 
+
+DECLARE
+CURSOR CUS_EMP4 IS SELECT A.STAFF_NAME,A.STAFF_CODE,B.BOOK_ISSUE_DATE,B.BOOK_ACTUAL_RETURN_DATE FROM STAFF_MASTERS A,BOOK_TRANSACTIONS B WHERE A.STAFF_CODE=B.STAFF_CODE AND DEPT_CODE='&V_DEPT';
+V_STAF CUS_EMP4%ROWTYPE;
+BEGIN
+OPEN CUS_EMP4;
+LOOP
+FETCH CUS_EMP4 INTO V_STAF;
+EXIT WHEN CUS_EMP4%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('STAFFNAME:'||V_STAF.STAFF_NAME);
+DBMS_OUTPUT.PUT_LINE('STAFFCODE:'||V_STAF.STAFF_CODE);
+DBMS_OUTPUT.PUT_LINE('BOOK ISSUED DATE:'||V_STAF.BOOK_ISSUE_DATE);
+DBMS_OUTPUT.PUT_LINE('BOOK RETURN DATE:'||V_STAF.BOOK_ACTUAL_RETURN_DATE);
+DBMS_OUTPUT.PUT_LINE('                       ');
+END LOOP;
+CLOSE CUS_EMP4;
+END;
+/
+
+
+4.9. Write a package which will contain a procedure and a function. 
+Function: This function will return years of experience for a staff. This function will take the hiredate of the staff as an input parameter. The output will be rounded to the nearest year (1.4 year will be considered as 1 year and 1.5 year will be considered as 2 year). 
+Procedure: Capture the value returned by the above function to calculate the additional allowance for the staff based on the experience. 
+Additional Allowance = Year of experience x 3000 
+Calculate the additional allowance and store Staff_Code, Date of Joining, and Experience in years and additional allowance in Staff_Allowance table. 
+
+
+CREATE OR REPLACE FUNCTION EMP_FUN1(V_DAY DATE) RETURN NUMBER
+AS
+VAL NUMBER;
+VAL1 STAFF_MASTERS%ROWTYPE;
+BEGIN
+SELECT * INTO VAL1 FROM STAFF_MASTERS WHERE HIREDATE=V_DAY;
+VAL:=FLOOR(MONTHS_BETWEEN(SYSDATE,VAL1.HIREDATE)/12);
+RETURN VAL;
+END;
+/
+
+
+
+CREATE OR REPLACE PROCEDURE EMP_PRO7(V_DAY DATE)
+AS
+V_VAL1 NUMBER(10);
+V_VAL2 NUMBER(10);
+V_NUM STAFF_MASTERS%ROWTYPE;
+BEGIN
+V_VAL1:=EMP_FUN1(V_DAY);
+SELECT * INTO V_NUM FROM STAFF_MASTERS WHERE HIREDATE=V_DAY;
+V_VAL2:=(V_VAL1)*(V_NUM.STAFF_SAL);
+INSERT INTO STAFF_ALLOWANCE VALUES(V_NUM.STAFF_CODE,V_NUM.HIREDATE,V_VAL1,V_VAL2);
+END;
+/
+
+
+4.10. Write a procedure to insert details into Book_Transaction table. Procedure should accept the book code and staff/student code. Date of issue is current date and the expected return date should be 10 days from the current date. If the expected return date falls on Saturday or Sunday, then it should be the next working day. 
+
+CREATE OR REPLACE PROCEDURE EMP_PRO8(B_CODE NUMBER,S_CODE NUMBER)
+AS
+ISSUE BOOK_TRANSACTION%ROWTYPE;
+BEGIN
+SELECT * INTO ISSUE FROM BOOK_TRANSACTION WHERE BOOK_CODE=B_CODE AND STAFF_CODE=S_CODE;
+UPDATE BOOK_TRANSACTION SET BOOK_ISSUE_DATE=TO_CHAR(SYSDATE) WHERE BOOK_CODE=B_CODE AND STAFF_CODE=S_CODE;
+UPDATE BOOK_TRANSACTION SET BOOK_EXPECTED_RETURN_DATE=TO_CHAR(SYSDATE+10) WHERE BOOK_CODE=B_CODE AND STAFF_CODE=S_CODE;
+IF TO_CHAR(ISSUE.BOOK_EXPECTED_RETURN_DATE,'FMDAY')='SUNDAY' OR TO_CHAR(ISSUE.BOOK_EXPECTED_RETURN_DATE,'FMDAY')='SATURDAY';
+ISSUE.BOOK_EXPECTED.RETURN_DATE:=ISSUE.BOOK_EXPECTED_RETURN_DATE+1;
+END IF;
+DBMS_OUTPUT.PUT_LINE('ISSUE DATE:'||ISSUE.BOOK_ISSUE_DATE);
+DBMS_OUTPUT.PUT_LINE('EXPECTED DATE:'||ISSUE.BOOK_EXPECTED_RETURN_DATE);
+END;
+/
+
+
+
+4.11: Write a function named ‘get_total_records’, to pass the table name as a parameter, and get back the number of records that are contained in the table. Test your function with multiple tables. 
+
+CREATE OR REPLACE FUNCTION GET_TABLE_COUNT (TABLE_NAME IN varchar2)
+  RETURN NUMBER
+IS
+  TABLE_COUNT NUMBER;
+BEGIN
+  EXECUTE IMMEDIATE 'SELECT COUNT(*) FROM ' || TABLE_NAME INTO TABLE_COUNT;
+  RETURN TABLE_COUNT;
+END;
+
+
+DECLARE
+V_NUM1 NUMBER(10);
+BEGIN
+V_NUM1:=GET_TABLE_COUNT('EMP');
+DBMS_OUTPUT.PUT_LINE(V_NUM1);
+END;
+/
+
+4.12 
+Tune the following Oracle Procedure enabling to gain better performance.
+Objective:The Procedure should update the salary of an employee and at the same time retrieve the employee's name and new salary into PL/SQL variables.
+CREATE OR REPLACE PROCEDURE update_salary (emp_id NUMBER) IS 
+v_name VARCHAR2(15); 
+v_newsal NUMBER; 
+BEGIN 
+UPDATE emp_copy SET sal = sal * 1.1 
+WHERE empno = emp_id; 
+SELECT ename, sal INTO v_name, v_newsal 
+FROM emp_copy 
+WHERE empno = emp_id; 
+DBMS_OUTPUT.PUT_LINE('Emp Name:' || v_name); 
+DBMS_OUTPUT.PUT_LINE('Ename:' || v_newsal); 
+END; 
+Example 5: Oracle Procedure 
+
+CREATE OR REPLACE PROCEDURE update_salary (emp_id NUMBER) IS
+v_num1 emp_copy%rowtype;
+BEGIN
+UPDATE emp_copy SET sal = sal * 1.1
+WHERE empno = emp_id;
+SELECT * INTO v_num1
+FROM emp_copy
+WHERE empno = emp_id;
+DBMS_OUTPUT.PUT_LINE('Emp Name:' || v_num1.ename);
+DBMS_OUTPUT.PUT_LINE('sal:' || v_num1.sal);
+END;
+/
+
+
+
+4.13 
+The following procedure attempts to delete data from table passed as parameter.This procedure has compilation errors. Identify and correct the problem. 
+CREATE or REPLACE PROCEDURE gettable(table_name in varchar2) AS 
+BEGIN 
+DELETE FROM table_name; 
+END; 
+Example 6: Oracle Procedure
+
+CREATE or REPLACE PROCEDURE gettable(table_name varchar2) AS
+table_count varchar(10);
+BEGIN
+EXECUTE IMMEDIATE 'DELETE FROM'||table_name;
+END;
+
+4.14 Write a procedure which prints the following report using procedure: 
+The procedure should take deptno as user input and appropriately print the emp details. 
+Also display : 
+Number of Employees,Total Salary,Maximum Salary,Average Salary 
+Note: The block should achieve the same without using Aggregate Functions. 
+Sample output for deptno 10 is shown below: 
+Employee Name : CLARK 
+Employee Job : MANAGER 
+Employee Salary : 2450 
+Employee Comission : 
+************************************ 
+Employee Name : KING 
+Employee Job : PRESIDENT 
+Employee Salary : 5000 
+Employee Comission : 
+************************************ 
+Employee Name : MILLER 
+Employee Job : CLERK 
+Employee Salary : 1300 
+Employee Comission : 
+************************************ 
+Number of Employees : 3 
+Total Salary : 8750 
+Maximum Salary : 5000 
+Average Salary : 2916.67 
+------------------------------------ 
+Figure 1 :Report
+
+CREATE OR REPLACE PROCEDURE EMP_PRO8(p_dept STAFF_MASTERS.DEPT_CODE%TYPE)
+AS
+CURSOR emp_cur IS SELECT * FROM STAFF_MASTERS WHERE DEPT_CODE=p_dept;
+V_EMP STAFF_MASTER%ROWTYPE;
+V_NUM NUMBER(10);
+V_SAL NUMBER(10);
+V_MAX NUMBER(10);
+V_AVG NUMBER(10);
+BEGIN
+SELECT COUNT(NAME),SUM(SALARY),MAX(SALARY),AVG(SALARY) INTO V_NUM,V_SAL,V_MAX,V_AVG FROM STAFF WHERE DEPT_CODE=p_dept;
+OPEN emp_cur;
+LOOP
+FETCH emp_cur INTO V_EMP;
+EXIT WHEN emp_cur%NOTFOUND;
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE NAME: '||V_EMP.NAME);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE DEPTNO: '||V_EMP.DEPTCODE);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE SALARY: '||V_EMP.SALARY);
+DBMS_OUTPUT.PUT_LINE('EMPLOYEE COMMISION: '||V_EMP.MGR_CODE);
+DBMS_OUTPUT.PUT_LINE('****************************');
+END LOOP;
+DBMS_OUTPUT.PUT_LINE('TOTAL EMPLOYEE: '||V_NUM);
+DBMS_OUTPUT.PUT_LINE('TOTAL SALARY: '||V_SAL);
+DBMS_OUTPUT.PUT_LINE('MAXIMAM SALARY: '||V_MAX);
+DBMS_OUTPUT.PUT_LINE('AVERAGE SALARY: '||V_AVG);
+CLOSE emp_cur;
+END;
+/
+
+
+4.15: Write a query to view the list of all procedures ,functions and packages from the Data Dictionary.
+CREATE OR REPLACE PROCEDURE EMP_PRO9()
+AS
+BEGIN
+SELECT * FROM ALL_PROCEDURES;
+END;
+/
+
+Lab 5. Case Study 1
+5.1 Create appropriate Test Cases for the case study followed up by Self/Peer to Peer 
+Review and close any defects for the same. 
+
+SQL> CREATE TABLE CUSTOMER_MASTERS(CUST_ID NUMBER(6)NOT NULL,CUST_NAME VARCHAR(20)NOT NULL,ADDRESS VARCHAR(50),DATE_OF_ACC_CREATION DATE,CUSTOMER_TYPE CHAR(3),CHECK(CUSTOMER_TYPE='IND' OR CUSTOMER_TYPE='NRI'));
+
+Table created.
+
+SQL> CREATE TABLE ACCOUNT_MASTERS(ACCOUNT_NUMBER NUMBER(6)NOT NULL,CUST_ID NUMBER(6),ACCOUNT_TYPE CHAR(3),LEDGER_BALANCE NUMBER(10),CHECK(ACCOUNT_TYPE='SAV' OR ACCOUNT_TYPE='SAL'),CHECK(LEDGER_BALANCE>=5000));
+
+Table created.
+
+SQL> CREATE TABLE TRANSACTION_MASTERS(TRANSACTION_ID NUMBER(6)NOT NULL,ACOUNT_NUMBER NUMBER(6),DATE_OF_TRANSACTION DATE,FROM_ACCOUNT_NUMBER NUMBER(6)NOT NULL,TO_ACCOUNT_NUMBER NUMBER(6)NOT NULL,AMOUNT NUMBER(10)NOT NULL,TRANSACTION_TYPE CHAR(2)NOT NULL,CHECK(TRANSACTION_TYPE='CR' OR TRANSACTION_TYPE='DR'));
+
+Table created.
+
+
+5.2Write a procedure to accept customer name, address, and customer type and account type. Insert the details into the respective tables. 
+
+CREATE OR REPLACE PROCEDURE EMP_PRO9(ID CUSTOMER_MASTERS.CUST_ID%TYPE,NAME CUSTOMER_MASTERS.CUST_NAME%TYPE,ADDR CUSTOMER_MASTERS.ADDRESS%TYPE,CUSTYPE CUSTOMER_MASTERS.CUSTOMER_TYPE%TYPE)
+AS
+
+BEGIN
+INSERT INTO CUSTOMER_MASTERS VALUES(ID,NAME,ADDR,NULL,CUSTYPE);
+END;
+/
+
+5.3. Write a procedure to accept customer id, amount and the account number to which the customer requires to transfer money. Following validations need to be done 
+• Customer id should be valid 
+• From account number should belong to that customer 
+• To account number cannot be null but can be an account which need not exist in account masters (some other account) 
+• Adequate balance needs to be available for debit 
+
+CREATE OR REPLACE PROCEDURE EMP_PRO10(EMPID NUMBER,AMOUNT NUMBER,TRANSFERACCOUNT NUMBER,FROMACCOUNT NUMBER)
+AS
+V_VAL ACCOUNT_MASTERS%ROWTYPE;
+BEGIN
+SELECT * INTO V_VAL FROM ACCOUNT_MASTERS WHERE CUST_ID=EMPID;
+IF TRANSFERACCOUNT<=0
+THEN 
+DBMS_OUTPUT.PUT_LINE('ERROR VALUE');
+ELSE
+IF V_VAL.LEDGER_BALANCE<AMOUNT+5000
+THEN 
+DBMS_OUTPUT.PUT_LINE('ERROR AMOUNT');
+ELSE
+IF FROMACCOUNT=V_VAL.ACCOUNT_NUMBER
+THEN
+DBMS_OUTPUT.PUT_LINE('VALID TRANSACTION');
+ELSE
+DBMS_OUTPUT.PUT_LINE('INVALID ACCES');
+END IF;
+END IF;
+END IF;
+END;
+/
+
+5.4 Ensure all the Test cases defined are executed. Have appropriate Self/Peer to Peer 
+Code Review and close any defects for the same.
+NO FURTHER CAHNGES REQUIRED;
+
+Lab 8. SQL*Plus Reports
+
+8.1: Using Multiple Spacing Techniques 
+Suppose you have more than one column in your ORDER BY clause and wish to insert space when each column’s value changes. Each BREAK command you enter replaces the previous one. 
+Now consider a scenario where you want to do either of the following: 
+• to use different spacing techniques in one report, or 
+• to insert space after the value changes in more than one ordered column 
+
+Then you must specify “multiple columns” and “actions” in a single BREAK command. 
+Step 1: Combine the Spacing Techniques. 
+SELECT DEPARTMENT_ID, JOB_ID, LAST_NAME, SALARY FROM EMP_DETAILS_VIEW 
+WHERE SALARY>12000 
+ORDER BY DEPARTMENT_ID, JOB_ID; 
+Example 9: Sample Code 
+Now, to skip a page when the value of DEPARTMENT_ID changes, and to skip one line when the value of JOB_ID changes, key in the following command: 
+BREAK ON DEPARTMENT_ID SKIP PAGE ON JOB_ID SKIP 1 
+Example 10: Sample Code 
+To show that SKIP PAGE has taken effect, create a TTITLE with a page number
+Step 2: Produce a report that does the following when the value of JOB_ID changes: 
+• prints duplicate job values, 
+• prints the average of SALARY, and 
+• inserts one blank line 
+
+Additionally the report should do the following when the value of DEPT_ID changes: 
+• prints the sum of SALARY, and 
+• inserts another blank line 
+
+
+SELECT DEPT_ID,JOB_ID,LAST_NAME,SALARY FROM EMP_DETAILS WHERE SALARY>70000 ORDER BY DEPT_ID,JOB_ID;
+BREAK ON DEPTNO SKIP PAGE ON JOB SKIP 1;
+
+TTITLE OF COL 35 FORMAT 9'PAGE:' SQL.PNO;
+SELECT * FROM EMP_DETAILS;
+
+SELECT JOB_ID,COUNT(JOB_ID) FROM DEPT_DETAILS GROUP BY JOB_ID HAVING COUNT(JOB_ID)>1;
+SELECT AVG(SALARY) FROM EMP_DETAILS;
+BREAK ON SAL SKIP 1;
+
+SELECT SUM(SALARY) FROM EMP_DETAILS;
+BREAK ON SALARY SKIP 1;
+
+
+8.2: Computing and Printing Subtotals 
+Step 1: Generate SQL Report in the following format. 
+SALES DEPARTMENT PERSONNEL REPORT 
+PERFECT WIDGETS 
+01-JAN-2008 
+PAGE: 1 
+DEPARTMENT_ID LAST_NAME SALARY 
+------------- ------------------------- ---------- 
+20 Hartstein 13000 
+80 Russell 14000 
+80 Partners 13500 
+90 King 24000 
+90 Kochhar 17000 
+90 De Haan 17000 
+---------- 
+98500 
+COMPANY CONFIDENTIAL 
+6 rows selected. 
+Figure 4: SQL Report 
+Step 2: Generate SQL Report in the following format. 
+Dept Job No. of Average 
+No. Name Employees Salary/Job 
+---- -------- ------------- ------------- 
+10 SALES 4 $13,000.00 
+CLEARK 2 $10,666.00 
+20 MANAGER 3 $14,000.00 
+SALES 6 $11,000.00 
+30 CLERK 10 $13,500.00 
+MANAGER 3 $15,000.00 
+SALES 4 $10,000.00 
+40 PRESIDENT 1 424,000.00
+
+
+1.
+TTITLE LEFT 'DEPRTMENT WIDGET'-'09-AUG-2008';
+SELECT * FROM EMP_DETAILS;
+
+
+2.
+COLOUMN SALARY FORMAT $99,990;
+SELECT * FROM EMP_DETAILS;
+
+BREAK ON REPORT;
+COMPUTE SUM LABEL TOTAL OF SALARY ON REPORT;
+SELECT DEPT_ID,LAST_NAME,SALARY FROM EMP_DETAILS;
+

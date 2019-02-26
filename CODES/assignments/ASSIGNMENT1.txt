@@ -1,0 +1,101 @@
+
+ 1. Retrieve the details (Name, Salary and dept code) of the employees who are working in department 20, 30 and 40.
+
+
+ 	SELECT * FROM EMPLOYEE WHERE EMPDEPT=20 OR EMPDEPT=30 OR EMPDEPT=40;
+
+2.List the details of the employees with user defined Column headers
+
+	 SELECT * FROM EMPLOYEE;
+
+3. Display the code, subjects and total marks for every student. Total Marks will be calculated as Subject1+Subject2+Subject3.
+
+	 SELECT STUDENT_NAME,ENGLISH+PHYSICS+CHEMISTRY AS "TOTAL MARKS" FROM STUDENT_MARKS;
+
+
+4. List the details of the staff whose designations are either PROFESSOR or LECTURER
+
+	 SELECT * FROM DESIGNATION WHERE DESIGN='LECTURER' OR DESIGN='PROFESSOR';
+5. List the code, name, and department number of the employees who have experience of more than 18 years.
+
+	
+ SELECT * FROM EXPERIENCE WHERE EXP>18;
+
+6. List the name and Designations of the staff who have joined before Jan 2003
+	
+	
+ SELECT * FROM JOINING WHERE JOINDATE<'01-JAN-2003';
+
+7. List the name, designation, and income for 10 years of the employees who are working in departments 10 and 30.
+
+	SELECT * FROM EMPLOYEE WHERE EMPDEPT=10 OR EMPDEPT=30;
+
+
+8. List the name and experience (in years) of employees who are working as LECTURER.
+
+	SELECT NAME,MONTHS_BETWEEN(SYSDATE,HIREDATE)/12 AS "EXPERIENCE",DESIGNATION FROM WORK WHERE DESIGNATION='LECTURER';
+
+9. Display name concatenated with dept code separated by comma and space. Name the column as ‘Student Info’.
+
+	SQL> SELECT EMPNAME,EMPDEPT,CONCAT(CONCAT(EMPNAME,','),CONCAT('',EMPDEPT)) "STUDENT INFO" FROM EMPLOYEE;
+
+10. List the Name and Salary of the staff who are earning between 12000 and 25000. Sort them based on their salaries and name.
+
+	SELECT NAME,SALARY FROM SORTOF WHERE SALARY BETWEEN 12000 AND 25000  ORDER BY  NAME DESC,SALARY ;
+	SELECT NAME,SALARY FROM SORTOF WHERE SALARY BETWEEN 12000 AND 25000  ORDER BY  NAME ,SALARY ;
+
+11. Display employees who do not have manager.
+
+	 SELECT * FROM SORTOF WHERE MANAGER='NO';
+
+12. Write a query which will display name, department code and date of birth of all students
+ who were born between January 1, 1981 and March 31, 1983. Sort it based on date of birth (ascending).
+
+	SQL> SELECT NAME,DEPTCODE,DOB FROM SORTOF WHERE DOB BETWEEN '1-JAN-1996' AND '31-MAR-99' ORDER BY DOB;
+
+13. Get the Department number, and sum of Salary of all non managers where the sum is greater than 20000.
+	
+       
+14. Display the details of books that have not been returned and expected return date was last Monday.
+
+
+15. Display the name and department code of students. If student does not belong to any department, display “No Department”. Label the column as “Department”. 
+(Hint: Use NVL function)
+
+
+
+
+16. Display the name and salary of the staff. Salary should be represented as X. Each X represents a 1000 in salary.
+
+SELECT NAME ,LPAD("CEIL((SALARY)/1000)+1,'X') FRPM SORTOF;
+	
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

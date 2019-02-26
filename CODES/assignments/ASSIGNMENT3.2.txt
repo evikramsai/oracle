@@ -1,0 +1,16 @@
+1. Get the details of all products irrespective of the fact whether they are in previous set or current set. 
+SELECT * FROM CURRENT_PRODUCTS,PREVIOUS_PRODUCTS WHERE CURRENT_PRODUCTS.PID=PREVIOUS_PRODUCTS.PID;
+
+
+2. Get the details of all products along with the repetition of those that were present both in the previous and current sets. 
+SELECT A.NAME,A.PID FROM PREVIOUS_PRODUCTS A FULL OUTER JOIN CURRENT_PRODUCTS B ON A.PID=B.PID;(TO BE MODIFIED)
+
+
+3. Get the details of only those products which were present in the previous set and are still continuing. 
+
+SELECT A.NAME FROM PREVIOUS_PRODUCTS A INNER JOIN CURRENT_PRODUCTS B ON A.PID=B.PID ;
+
+
+
+4. Get the details of all obsolete products (no longer continued).
+SELECT A.NAME,A.PID FROM PREVIOUS_PRODUCTS A LEFT JOIN CURRENT_PRODUCTS B ON A.NAME=B.NAME WHERE A.NAME NOT IN(SELECT A.NAME FROM PREVIOUS_PRODUCTS A INNER JOIN CURRENT_PRODUCTS B ON A.NAME=B.NAME) ;
